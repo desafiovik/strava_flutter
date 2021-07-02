@@ -1,14 +1,13 @@
 // races.dart
 
-import 'package:http/http.dart' as http;
-import 'dart:convert';
 import 'dart:async';
+import 'dart:convert';
 
-import '../Models/running_race.dart';
-import '../Models/fault.dart';
-
-import '../globals.dart' as globals;
-import '../error_codes.dart' as error;
+import 'package:http/http.dart' as http;
+import 'package:strava_flutter/error_codes.dart' as error;
+import 'package:strava_flutter/globals.dart' as globals;
+import 'package:strava_flutter/models/fault/fault.dart';
+import 'package:strava_flutter/models/running_race/running_race.dart';
 
 abstract class Races {
   /// getRunningRacebyId
@@ -24,12 +23,12 @@ abstract class Races {
     final _header = globals.createHeader();
 
     if (_header.containsKey('88') == false) {
-      final reqRace = 'https://www.strava.com/api/v3/running_races/' + id;
+      final reqRace = 'https://www.strava.com/api/v3/running_races/$id';
 
       final rep = await http.get(Uri.parse(reqRace), headers: _header);
       if (rep.statusCode == 200) {
         globals.displayInfo('Race info ${rep.body}');
-        final Map<String, dynamic>? jsonResponse = json.decode(rep.body);
+        final jsonResponse = json.decode(rep.body) as Map<String, dynamic>?;
 
         if (jsonResponse != null) {
           returnRace = RunningRace.fromJson(jsonResponse);
@@ -40,8 +39,7 @@ abstract class Races {
       returnRace.fault = globals.errorCheck(rep.statusCode, rep.reasonPhrase);
     } else {
       globals.displayInfo('Token not yet known');
-      returnRace.fault =
-          Fault(error.statusTokenNotKnownYet, 'Token not yet known');
+      returnRace.fault = Fault(error.statusTokenNotKnownYet, 'Token not yet known');
     }
 
     return returnRace;
@@ -57,8 +55,7 @@ abstract class Races {
     final _header = globals.createHeader();
 
     if (_header.containsKey('88') == false) {
-      final reqList =
-          'https://www.strava.com/api/v3/running_races?year=' + year;
+      final reqList = 'https://www.strava.com/api/v3/running_races?year=$year';
 
       final rep = await http.get(Uri.parse(reqList), headers: _header);
       if (rep.statusCode == 200) {
@@ -66,12 +63,12 @@ abstract class Races {
         final jsonResponse = json.decode(rep.body);
 
         if (jsonResponse != null) {
-          List<RunningRace> _listRaces = <RunningRace>[];
+          final _listRaces = <RunningRace>[];
 
-          jsonResponse.forEach((element) {
+          jsonResponse.forEach((Map<String, dynamic> element) {
             final _race = RunningRace.fromJson(element);
-            globals.displayInfo(
-                '${_race.name} ,  ${_race.startDateLocal}    ${_race.id}');
+            globals
+                .displayInfo('${_race.name} ,  ${_race.startDateLocal}    ${_race.id}');
             _listRaces.add(_race);
           });
 
@@ -80,8 +77,7 @@ abstract class Races {
           globals.displayInfo('problem in getRunningRaces request');
         }
       }
-      returnListRaces[0].fault =
-          globals.errorCheck(rep.statusCode, rep.reasonPhrase);
+      returnListRaces[0].fault = globals.errorCheck(rep.statusCode, rep.reasonPhrase);
     } else {
       globals.displayInfo('Token not yet known');
       returnListRaces[0].fault =

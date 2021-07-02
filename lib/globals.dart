@@ -1,8 +1,8 @@
 // globals.dart
 
 import 'package:flutter/foundation.dart';
-import 'package:strava_flutter/Models/fault.dart';
-import 'package:strava_flutter/Models/token.dart';
+import 'package:strava_flutter/models/fault/fault.dart';
+import 'package:strava_flutter/models/token/token.dart';
 
 bool isInDebug = true; // set to true to see debug message in API
 
@@ -11,13 +11,13 @@ Token token = Token(); // Where the token info is stored when executing APIs
 // Default location
 // used when an activity has null
 // for startLatitude and end
-final defaultStartLatlng = 0.0;
-final defaultEndlatlng = 0.0;
+const defaultStartLatlng = 0.0;
+const defaultEndlatlng = 0.0;
 
 /// To display debug info in Strava API
 void displayInfo(String? message) {
   if (isInDebug) {
-    final msgToDisplay = '--> Strava_flutter: ' + message!;
+    final msgToDisplay = '--> Strava_flutter: ${message!}';
     debugPrint(msgToDisplay);
   }
 }
@@ -40,7 +40,7 @@ Map<String, String> createHeader() {
 /// Coming from http request
 ///
 Fault errorCheck(int statusCode, String? reason) {
-  Fault returnFault = Fault(statusCode, reason);
+  final Fault returnFault = Fault(statusCode, reason);
 
   return returnFault;
 }

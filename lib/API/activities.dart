@@ -1,13 +1,13 @@
 // activities.dart
-import 'package:http/http.dart' as http;
-import 'package:strava_flutter/Models/fault.dart';
-import 'dart:convert';
 import 'dart:async';
+import 'dart:convert';
 
-import '../globals.dart' as globals;
-import '../error_codes.dart' as error;
-
-import '../Models/activity.dart';
+import 'package:http/http.dart' as http;
+import 'package:strava_flutter/error_codes.dart' as error;
+import 'package:strava_flutter/globals.dart' as globals;
+import 'package:strava_flutter/models/detailed_activity/detailed_activity.dart';
+import 'package:strava_flutter/models/fault/fault.dart';
+import 'package:strava_flutter/models/photo_activity/photo_activity.dart';
 
 abstract class Activities {
   /// scope: activity:read
@@ -22,13 +22,13 @@ abstract class Activities {
 
     if (_header.containsKey('88') == false) {
       final String reqActivity =
-          'https://www.strava.com/api/v3/activities/' + id + '?include_all_efforts=true';
+          'https://www.strava.com/api/v3/activities/$id?include_all_efforts=true';
       final rep = await http.get(Uri.parse(reqActivity), headers: _header);
 
       if (rep.statusCode == 200) {
         globals.displayInfo(rep.statusCode.toString());
         globals.displayInfo('Activity info ${rep.body}');
-        final Map<String, dynamic> jsonResponse = json.decode(rep.body);
+        final jsonResponse = json.decode(rep.body) as Map<String, dynamic>;
         final DetailedActivity _activity = DetailedActivity.fromJson(jsonResponse);
         globals.displayInfo(_activity.name);
 
@@ -91,7 +91,7 @@ abstract class Activities {
       if (resp.statusCode == 201) {
         globals.displayInfo(resp.statusCode.toString());
         globals.displayInfo('Activity info ${resp.body}');
-        final Map<String, dynamic> jsonResponse = json.decode(resp.body);
+        final jsonResponse = json.decode(resp.body) as Map<String, dynamic>;
 
         final DetailedActivity _activity = DetailedActivity.fromJson(jsonResponse);
         globals.displayInfo(_activity.name);
@@ -125,14 +125,13 @@ abstract class Activities {
     globals.displayInfo('Entering getPhotosFromActivityById');
 
     if (_header.containsKey('88') == false) {
-      final String reqActivity =
-          'https://www.strava.com/api/v3/activities/' + id + '/photos';
+      final String reqActivity = 'https://www.strava.com/api/v3/activities/$id/photos';
       final rep = await http.get(Uri.parse(reqActivity), headers: _header);
 
       if (rep.statusCode == 200) {
         globals.displayInfo(rep.statusCode.toString());
         globals.displayInfo('Photos of activity${rep.body}');
-        final Map<String, dynamic> jsonResponse = json.decode(rep.body);
+        final jsonResponse = json.decode(rep.body) as Map<String, dynamic>;
         final DetailedActivity _activity = DetailedActivity.fromJson(jsonResponse);
         globals.displayInfo(_activity.name);
 

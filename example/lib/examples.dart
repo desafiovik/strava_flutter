@@ -3,26 +3,25 @@
 // Examples to use strava_flutter
 import 'dart:async';
 import 'dart:io';
-import 'package:flutter/services.dart' show rootBundle;
-import 'package:path_provider/path_provider.dart';
 import 'dart:typed_data'; // Needed when declaring ByteData
 
-// import 'package:strava_flutter/API/constants.dart';
+import 'package:flutter/services.dart' show rootBundle;
+import 'package:path_provider/path_provider.dart';
 import 'package:strava_flutter/error_codes.dart' as error;
-import 'secret.dart';
-
+// To test getLoggedInAtletheActivities
+import 'package:strava_flutter/models/detailed_athlete/detailed_athlete.dart';
+import 'package:strava_flutter/models/detailed_segment/detailed_segment.dart';
+import 'package:strava_flutter/models/detailed_segment_effort/detailed_segment_effort.dart';
+import 'package:strava_flutter/models/fault/fault.dart';
+import 'package:strava_flutter/models/segment_leaderboard/segment_leaderboard.dart';
+import 'package:strava_flutter/models/segments_list/segments_list.dart';
+// Used by segment and segmentEffort
+import 'package:strava_flutter/models/stats/stats.dart'; // Test
+import 'package:strava_flutter/models/summary_activity/summary_activity.dart';
 // Used by uploadExample
 import 'package:strava_flutter/strava.dart';
-import 'package:strava_flutter/Models/fault.dart';
-import 'package:strava_flutter/Models/stats.dart'; // Test
 
-// Used by segment and segmentEffort
-import 'package:strava_flutter/Models/segment.dart';
-import 'package:strava_flutter/Models/segment_effort.dart';
-
-// To test getLoggedInAtletheActivities
-import 'package:strava_flutter/Models/detailed_athlete.dart';
-import 'package:strava_flutter/Models/activity.dart';
+import 'secret.dart';
 
 /// Example showing how to upload an activity on Strava
 ///
@@ -35,8 +34,8 @@ import 'package:strava_flutter/Models/activity.dart';
 Future<Fault> exampleUpload(String secret) async {
   Future<void> writeToFile(ByteData data, String path) {
     final buffer = data.buffer;
-    return File(path).writeAsBytes(
-        buffer.asUint8List(data.offsetInBytes, data.lengthInBytes));
+    return File(path)
+        .writeAsBytes(buffer.asUint8List(data.offsetInBytes, data.lengthInBytes));
   }
 
   // Do authentication with the right scope
@@ -79,15 +78,16 @@ Future<Fault> exampleUpload(String secret) async {
 Future<Fault> exampleSegment(String secret) async {
   // Do authentication with the right scope
   final strava = Strava(
-      true, // To get display info in API
-      secret);
+    true, // To get display info in API
+    secret,
+  );
 
   Fault _fault = Fault(error.statusOk, '');
 
   bool isAuthOk = false;
 
-  isAuthOk = await strava.oauth(clientId,
-      'profile:write,profile:read_all,activity:read_all', secret, 'auto');
+  isAuthOk = await strava.oauth(
+      clientId, 'profile:write,profile:read_all,activity:read_all', secret, 'auto');
 
   print('---> Authentication result: $isAuthOk');
 
@@ -104,8 +104,7 @@ Future<Fault> exampleSegment(String secret) async {
   // It is the segment id that you can find in an activity
   // Like what is after segment in url like
   // https://www.strava.com/activities/3234026164/segments/81425019085
-  DetailedSegmentEffort _segEffort =
-      await strava.getSegmentEffortById(81425019085);
+  DetailedSegmentEffort _segEffort = await strava.getSegmentEffortById(81425019085);
 
   print('Test getEffortsbySegmentId');
   // The loggedInAthlete should have ridden the segment
@@ -132,8 +131,8 @@ Future<Fault> exampleSegment(String secret) async {
   // Get the list of segments that have been starred by the loggedin athlete
   SegmentsList _list = await strava.getLoggedInAthleteStarredSegments();
 
-  _list.segments.forEach((seg) =>
-      print('Starred segment: ${seg.id}  ${seg.name} ${seg.maximumGrade}'));
+  _list.segments.forEach(
+      (seg) => print('Starred segment: ${seg.id}  ${seg.name} ${seg.maximumGrade}'));
 
   // Get the leaderboard for a specific segment 8186850
   // There are optional parameters
@@ -166,8 +165,8 @@ Future<Fault> exampleSegment(String secret) async {
   SegmentLeaderboard _leaderboard =
       await strava.getLeaderboardBySegmentId(8186850, nbMaxEntries: 10);
   // await strava.getLeaderboardBySegmentId(2628520);
-  _leaderboard.entries.forEach(
-      (f) => print('Leaderboard entry ${f.athleteName}  ${f.elapsedTime}'));
+  _leaderboard.entries
+      .forEach((f) => print('Leaderboard entry ${f.athleteName}  ${f.elapsedTime}'));
 
   /// Star (or unstar) a segment for the loggedInAthlete
   ///

@@ -1,10 +1,10 @@
-import 'package:http/http.dart' as http;
 import 'dart:convert';
 
-import 'package:strava_flutter/globals.dart' as globals;
-import 'package:strava_flutter/Models/fault.dart';
-import 'package:strava_flutter/Models/segment_effort.dart';
+import 'package:http/http.dart' as http;
 import 'package:strava_flutter/error_codes.dart' as error;
+import 'package:strava_flutter/globals.dart' as globals;
+import 'package:strava_flutter/models/detailed_segment_effort/detailed_segment_effort.dart';
+import 'package:strava_flutter/models/fault/fault.dart';
 
 abstract class SegmentEfforts {
   Future<DetailedSegmentEffort> getSegmentEffortById(int segId) async {
@@ -15,7 +15,7 @@ abstract class SegmentEfforts {
     globals.displayInfo('Entering getSegmentEffortById');
 
     if (_header.containsKey('88') == false) {
-      final reqSeg = 'https://www.strava.com/api/v3/segment_efforts/' + segId.toString();
+      final reqSeg = 'https://www.strava.com/api/v3/segment_efforts/$segId';
 
       final rep = await http.get(Uri.parse(reqSeg), headers: _header);
 
@@ -26,8 +26,9 @@ abstract class SegmentEfforts {
           final jsonResponse = json.decode(rep.body);
 
           if (jsonResponse != null) {
-            _returnSeg = DetailedSegmentEffort.fromJson(jsonResponse);
-            globals.displayInfo('${_returnSeg.name}');
+            _returnSeg =
+                DetailedSegmentEffort.fromJson(jsonResponse as Map<String, dynamic>);
+            globals.displayInfo(_returnSeg.name);
           }
         }
       } else {
@@ -55,20 +56,14 @@ abstract class SegmentEfforts {
 
     final _header = globals.createHeader();
     bool isRetrieveDone = false;
-    int _perPage = 50; // Nombre of segments retrieved by request
+    const int _perPage = 50; // Nombre of segments retrieved by request
 
     globals.displayInfo('Entering getEffortsbySegmentId');
 
     if (_header.containsKey('88') == false) {
       do {
-        final reqSeg = 'https://www.strava.com/api/v3/segment_efforts?segment_id=' +
-            segId.toString() +
-            '&start_date_local=' +
-            startDateLocal +
-            '&end_date_local=' +
-            endDateLocal +
-            '&per_page=' +
-            _perPage.toString();
+        final reqSeg =
+            'https://www.strava.com/api/v3/segment_efforts?segment_id=$segId&start_date_local=$startDateLocal&end_date_local=$endDateLocal&per_page=$_perPage';
 
         final rep = await http.get(Uri.parse(reqSeg), headers: _header);
         int _nbSegments = 0;
@@ -80,9 +75,9 @@ abstract class SegmentEfforts {
             final jsonResponse = json.decode(rep.body);
 
             if (jsonResponse != null) {
-              jsonResponse.forEach((_seg) {
+              jsonResponse.forEach((Map<String, dynamic> _seg) {
                 final _detailedSegmentEffort = DetailedSegmentEffort.fromJson(_seg);
-                globals.displayInfo('${_detailedSegmentEffort.name}');
+                globals.displayInfo(_detailedSegmentEffort.name);
                 // _listSummary.add(member);
                 _nbSegments++;
               });
@@ -96,8 +91,8 @@ abstract class SegmentEfforts {
 
               }
 
-              DetailedSegmentEffort _segEffort =
-                  DetailedSegmentEffort.fromJson(jsonResponse[0]);
+              final _segEffort =
+                  DetailedSegmentEffort.fromJson(jsonResponse[0] as Map<String, dynamic>);
               globals.displayInfo(_segEffort.name);
 
               _returnSeg = _segEffort;

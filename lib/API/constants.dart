@@ -1,16 +1,16 @@
 // Constants.dart
 
-final tokenEndpoint = "https://www.strava.com/oauth/token";
-final authorizationEndpoint = "https://www.strava.com/oauth/authorize";
+const tokenEndpoint = 'https://www.strava.com/oauth/token';
+const authorizationEndpoint = 'https://www.strava.com/oauth/authorize';
 
 // To test with Spotify Authentication
-// final authorizationEndpoint = "https://accounts.spotify.com/authorize";
+// const authorizationEndpoint = 'https://accounts.spotify.com/authorize';
 
-// final clientId = '32212';
+// const clientId = '32212';
 
-// final String redirectUrlWeb = "https://tombolo.fr";
-final String redirectUrlWeb = "https://BirdyF.github.io";
+// const String redirectUrlWeb = 'https://tombolo.fr';
+const String redirectUrlWeb = 'https://BirdyF.github.io';
 
-final String redirectUrlMobile =
-    // "strava://redirect/"; // To use with iOS or Android
-    "stravaflutter://redirect/"; // To use with iOS or Android
+const String redirectUrlMobile =
+    // 'strava://redirect/'; // To use with iOS or Android
+    'stravaflutter://redirect/'; // To use with iOS or Android

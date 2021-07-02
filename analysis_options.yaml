@@ -1,0 +1,38 @@
+include: package:lint/analysis_options.yaml
+
+linter:
+  rules:
+    - parameter_assignments
+    - prefer_single_quotes
+    - avoid_returning_this
+    - avoid_unnecessary_containers
+    - camel_case_extensions
+    - do_not_use_environment
+    - empty_catches
+    - empty_constructor_bodies
+    - library_names
+    - library_prefixes
+    - package_prefixed_library_names
+    - prefer_contains
+    - recursive_getters
+    - sized_box_for_whitespace
+    - avoid_returning_null
+    - avoid_redundant_argument_values
+    - unnecessary_string_interpolations
+    - unnecessary_string_escapes
+
+analyzer:
+  exclude:
+    - lib/generated/**
+    - /**.g.dart
+
+  errors:
+    missing_required_param: error
+    parameter_assignments: error
+    missing_return: error
+    unnecessary_raw_strings: false
+    no_runtimetype_tostring: false
+    sort_pub_dependencies: false
+    prefer_constructors_over_static_methods: false
+    avoid_function_literals_in_foreach_calls: false
+    avoid_positional_boolean_parameters: false

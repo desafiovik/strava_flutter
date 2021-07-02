@@ -1,27 +1,22 @@
-import 'package:flutter/material.dart';
 // To remove # at the end of redirect url when in web mode (not mobile)
 // This is a web only package
 // import 'dart:html' as html;
 
 import 'package:example/examples.dart';
-
-import 'package:example/secret.dart';
-
 import 'package:example/permissions.dart';
-
+import 'package:example/secret.dart';
+import 'package:flutter/material.dart';
+import 'package:strava_flutter/models/club/club.dart';
+import 'package:strava_flutter/models/detailed_activity/detailed_activity.dart';
+import 'package:strava_flutter/models/detailed_athlete/detailed_athlete.dart';
+import 'package:strava_flutter/models/fault/fault.dart';
+import 'package:strava_flutter/models/gear/gear.dart';
+import 'package:strava_flutter/models/running_race/running_race.dart';
+import 'package:strava_flutter/models/stats/stats.dart';
+import 'package:strava_flutter/models/summary_activity/summary_activity.dart';
+import 'package:strava_flutter/models/summary_athlete/summary_athlete.dart';
+import 'package:strava_flutter/models/zone/zone.dart';
 import 'package:strava_flutter/strava.dart';
-
-// Used by example
-
-import 'package:strava_flutter/Models/activity.dart';
-import 'package:strava_flutter/Models/club.dart';
-import 'package:strava_flutter/Models/detailed_athlete.dart';
-import 'package:strava_flutter/Models/gear.dart';
-import 'package:strava_flutter/Models/running_race.dart';
-import 'package:strava_flutter/Models/stats.dart';
-import 'package:strava_flutter/Models/summary_athlete.dart';
-import 'package:strava_flutter/Models/zone.dart';
-import 'package:strava_flutter/Models/fault.dart';
 
 Strava strava;
 
@@ -94,13 +89,12 @@ class _StravaFlutterPageState extends State<StravaFlutterPage> {
         print(
             'Error in getLoggedInAthleteZones  ${_zone.fault.statusCode}  ${_zone.fault.message}');
       } else {
-        _zone.infoZones.zones.forEach(
-            (zone) => print('getLoggedInAthleteZones ${zone.min} ${zone.max}'));
+        _zone.infoZones.zones
+            .forEach((zone) => print('getLoggedInAthleteZones ${zone.min} ${zone.max}'));
       }
 
       // Activity 3226262796 with totalElevationGain to 0
-      DetailedActivity _activityPhoto =
-          await strava.getActivityById('3288393232');
+      DetailedActivity _activityPhoto = await strava.getActivityById('3288393232');
 
       // Get the photo of an activity
       // PhotoActivity _photo = await strava.getPhotosFromActivityById('3288393232');
@@ -133,8 +127,7 @@ class _StravaFlutterPageState extends State<StravaFlutterPage> {
       // "moving_time":17726,"elapsed_time":23181,"elevation_gain":1354.5838375091553,"achievement_count":0},"recent_run_to
       Stats _stats = await strava.getStats(_athlete.id);
       if (_stats.fault.statusCode != 200) {
-        print(
-            'Error in getStats ${_stats.fault.statusCode}    ${_stats.fault.message}');
+        print('Error in getStats ${_stats.fault.statusCode}    ${_stats.fault.message}');
       } else {
         print(
             'getStats ${_stats.ytdRideTotals.distance} ${_stats.ytdRideTotals.elevationGain}   ${_stats.allSwimTotals.distance}');
@@ -142,10 +135,8 @@ class _StravaFlutterPageState extends State<StravaFlutterPage> {
 
       // A long list of races per city
       // Starting by Walt Disney World Marathon
-      List<RunningRace> _listRunningRaces =
-          await strava.getRunningRaces('2019');
-      if ((_listRunningRaces == null) ||
-          (_listRunningRaces[0].fault.statusCode != 200)) {
+      List<RunningRace> _listRunningRaces = await strava.getRunningRaces('2019');
+      if ((_listRunningRaces == null) || (_listRunningRaces[0].fault.statusCode != 200)) {
         print(
             'Error in getRunningRaces: ${_listRunningRaces[0].fault.statusCode}    ${_listRunningRaces[0].fault.message}');
       } else {
@@ -174,7 +165,7 @@ class _StravaFlutterPageState extends State<StravaFlutterPage> {
       /// Type of expected answer:
       /// {"id":"b4366285","primary":true,"name":"Roubaix Specialized","resource_state":3,"distance":461692.0,
       /// "brand_name":"Specialized","model_name":"Roubaix Expert","frame_type":3,"description":"So comfortable!"}
-      Gear _gear = await strava.getGearById("b4366285");
+      Gear _gear = await strava.getGearById('b4366285');
       if (_gear.fault.statusCode != 200) {
         print(
             'error code getGearById  ${_gear.fault.statusCode}  ${_gear.fault.message}');
@@ -221,8 +212,8 @@ class _StravaFlutterPageState extends State<StravaFlutterPage> {
             'error code getClubById  ${_club.fault.statusCode}  ${_club.fault.message}');
       } else {
         print('getClubActivitiesById ');
-        _listSumm.forEach((activity) =>
-            print('${activity.name}   ${activity.totalElevationGain}'));
+        _listSumm.forEach(
+            (activity) => print('${activity.name}   ${activity.totalElevationGain}'));
       }
 
       /// You have to put an id of one activity of the logged Athlete
@@ -288,16 +279,15 @@ class _StravaFlutterPageState extends State<StravaFlutterPage> {
             Text(''),
             Text('Authentication'),
             Text('with segments Apis'),
-            RaisedButton(
+            ElevatedButton(
               key: Key('SegmentsButton'),
               child: Text('Segments'),
-              // onPressed: exampleStrava,
               onPressed: exampleSeg,
             ),
             Text(''),
             Text('Authentication'),
             Text('with other Apis'),
-            RaisedButton(
+            ElevatedButton(
               key: Key('OthersButton'),
               child: Text('strava_flutter'),
               onPressed: exampleStrava,
@@ -305,7 +295,7 @@ class _StravaFlutterPageState extends State<StravaFlutterPage> {
             Text(''),
             Text(''),
             Text('Upload with authentication'),
-            RaisedButton(
+            ElevatedButton(
               key: Key('Uploadbutton'),
               child: Text('upload'),
               onPressed: upload,
@@ -313,19 +303,17 @@ class _StravaFlutterPageState extends State<StravaFlutterPage> {
             Text(''),
             Text(''),
             Text('Test insufficient permissions'),
-            RaisedButton(
+            ElevatedButton(
               key: Key('Permissionsbutton'),
               child: Text('permissions'),
               onPressed: permissions,
             ),
-            Text(' '),
+            Text(''),
             Text(''),
             Text(''),
             Text('Push this button'),
-            Text(
-              'to revoke/DeAuthorize Strava user',
-            ),
-            RaisedButton(
+            Text('to revoke/DeAuthorize Strava user'),
+            ElevatedButton(
               key: Key('DeAuthorizeButton'),
               child: Text('DeAuthorize'),
               onPressed: deAuthorize,

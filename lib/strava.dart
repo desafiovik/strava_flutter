@@ -1,21 +1,19 @@
-import 'package:http/http.dart' as http;
-import 'dart:convert';
 import 'dart:async';
+import 'dart:convert';
 
-import 'Models/fault.dart';
-import 'Models/gear.dart';
-
-import 'globals.dart' as globals;
-import 'error_codes.dart' as error;
-
-import 'API/o_auth.dart';
-import 'API/upload.dart';
-import 'API/clubs.dart';
-import 'API/activities.dart';
-import 'API/segments.dart';
-import 'API/athletes.dart';
-import 'API/races.dart';
-import 'API/segment_efforts.dart';
+import 'package:http/http.dart' as http;
+import 'package:strava_flutter/api/activities.dart';
+import 'package:strava_flutter/api/athletes.dart';
+import 'package:strava_flutter/api/clubs.dart';
+import 'package:strava_flutter/api/o_auth.dart';
+import 'package:strava_flutter/api/races.dart';
+import 'package:strava_flutter/api/segment_efforts.dart';
+import 'package:strava_flutter/api/segments.dart';
+import 'package:strava_flutter/api/upload.dart';
+import 'package:strava_flutter/error_codes.dart' as error;
+import 'package:strava_flutter/globals.dart' as globals;
+import 'package:strava_flutter/models/fault/fault.dart';
+import 'package:strava_flutter/models/gear/gear.dart';
 
 /// Initialize the Strava API
 ///  clientID: ID of your Strava app
@@ -39,9 +37,8 @@ class Strava
   ///
   /// secretKey is the key found in strava settings my Application (secret key)
   /// Set isIndebug to true to get debug print in strava API
-  Strava(bool isInDebug, String? secretKey) {
+  Strava(bool isInDebug, this.secret) {
     globals.isInDebug = isInDebug;
-    secret = secretKey;
   }
 
   /// Scope needed: any
@@ -61,12 +58,12 @@ class Strava
       if (rep.statusCode == 200) {
         globals.displayInfo(rep.statusCode.toString());
         globals.displayInfo(' ${rep.body}');
-        final Map<String, dynamic> jsonResponse = json.decode(rep.body);
+        final Map<String, dynamic> jsonResponse = json.decode(rep.body) as Map<String, dynamic>;
 
-        Gear _gear = Gear.fromJson(jsonResponse);
+        final Gear _gear = Gear.fromJson(jsonResponse);
         _gear.fault = Fault(88, '');
         globals.displayInfo(_gear.description);
-        _gear.fault.statusCode = error.statusOk;
+        _gear.fault?.statusCode = error.statusOk;
         returnGear = _gear;
       } else {
         globals.displayInfo('Problem in getGearById');

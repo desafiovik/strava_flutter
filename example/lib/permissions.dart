@@ -6,11 +6,10 @@
 import 'dart:async';
 
 import 'package:strava_flutter/strava.dart';
-import 'package:strava_flutter/Models/fault.dart';
 import 'package:strava_flutter/error_codes.dart' as error;
+import 'package:strava_flutter/models/fault/fault.dart';
+import 'package:strava_flutter/models/summary_activity/summary_activity.dart';
 import 'secret.dart';
-
-import 'package:strava_flutter/Models/activity.dart';
 
 Future<Fault> testPermissions(String secret) async {
 // Do authentication with the right scope

@@ -1,17 +1,14 @@
-/// segments.dart
-///
-///
-///
+import 'dart:async';
+import 'dart:convert';
 
 import 'package:http/http.dart' as http;
-import 'dart:convert';
-import 'dart:async';
-
-import '../Models/segment.dart';
-import '../Models/fault.dart';
-
-import '../globals.dart' as globals;
-import '../error_codes.dart' as error;
+import 'package:strava_flutter/error_codes.dart' as error;
+import 'package:strava_flutter/globals.dart' as globals;
+import 'package:strava_flutter/models/detailed_segment/detailed_segment.dart';
+import 'package:strava_flutter/models/entries/entries.dart';
+import 'package:strava_flutter/models/fault/fault.dart';
+import 'package:strava_flutter/models/segment_leaderboard/segment_leaderboard.dart';
+import 'package:strava_flutter/models/segments_list/segments_list.dart';
 
 abstract class Segments {
   ///
@@ -25,14 +22,14 @@ abstract class Segments {
     globals.displayInfo('Entering getSegById');
 
     if (_header.containsKey('88') == false) {
-      final reqSeg = 'https://www.strava.com/api/v3/segments/' + id;
+      final reqSeg = 'https://www.strava.com/api/v3/segments/$id';
       final rep = await http.get(Uri.parse(reqSeg), headers: _header);
       if (rep.statusCode == 200) {
         globals.displayInfo(rep.statusCode.toString());
         globals.displayInfo('Segment info ${rep.body}');
-        final Map<String, dynamic> jsonResponse = json.decode(rep.body);
+        final jsonResponse = json.decode(rep.body) as Map<String, dynamic>;
 
-        DetailedSegment _seg = DetailedSegment.fromJson(jsonResponse);
+        final _seg = DetailedSegment.fromJson(jsonResponse);
         globals.displayInfo(_seg.name);
 
         returnSeg = _seg;
@@ -65,13 +62,13 @@ abstract class Segments {
     print('_header: ${_header[0 as String]}');
 
     if (_header.containsKey('88') == false) {
-      final reqSeg = 'https://www.strava.com/api/v3/segments/starred?page=1&per_page=50';
+      const reqSeg = 'https://www.strava.com/api/v3/segments/starred?page=1&per_page=50';
       final rep = await http.get(Uri.parse(reqSeg), headers: _header);
       if (rep.statusCode == 200) {
         globals.displayInfo(rep.statusCode.toString());
         globals.displayInfo('List starred segments  info ${rep.body}');
         // final parsedJson = json.decode(rep.body);
-        returnList = SegmentsList.fromJson(json.decode(rep.body));
+        returnList = SegmentsList.fromJson(json.decode(rep.body) as Map<String, dynamic>);
       } else {
         globals.displayInfo('problem in getLoggedInAthleteStarredSegments request');
         // Add a fault
@@ -106,53 +103,32 @@ abstract class Segments {
   ///
   Future<SegmentLeaderboard> getLeaderboardBySegmentId(
     int? id, {
-    int? nbMaxEntries,
-    String? gender,
-    String? ageGroup,
-    String? weightclass,
-    bool? following,
+    int? nbMaxEntries = 2 ^ 63,
+    String? gender = 'M',
+    String? ageGroup = '',
+    String? weightclass = '',
+    bool? following = false,
     int? clubId,
-    String? dateRange,
+    String? dateRange = '',
   }) async {
     SegmentLeaderboard returnLeaderboard;
 
     returnLeaderboard = SegmentLeaderboard();
     final _header = globals.createHeader();
     int _pageNumber = 1;
-    int _perPage = 50; // Number of activities retrieved per http request
+    const int _perPage = 50; // Number of activities retrieved per http request
     bool isRetrieveDone = false;
     int _nbEntries = 0;
-    List<Entries> _listEntries = <Entries>[];
+    final List<Entries> _listEntries = <Entries>[];
 
     globals.displayInfo('Entering getLeaderboardBySegmentId');
 
-    // fix optional parameters when their value is null
-    nbMaxEntries = nbMaxEntries ?? 2 ^ 63;
-    gender = gender ?? 'M';
-    ageGroup = ageGroup ?? '';
-    weightclass = weightclass ?? '';
-    following = following ?? false;
     final clubIdStr = (clubId != null) ? clubId.toString() : '';
-    dateRange = dateRange ?? '';
 
     if (_header.containsKey('88') == false) {
       do {
-        String reqLeaderboard = 'https://www.strava.com/api/v3/segments/' +
-            id.toString() +
-            '/leaderboard?=gender' +
-            gender +
-            '&age_group=' +
-            ageGroup +
-            '&weight_class=' +
-            weightclass +
-            '&following=' +
-            following.toString() +
-            '&club_id=' +
-            clubIdStr +
-            '&date_range=' +
-            dateRange +
-            '&context_entries=' +
-            '&page=$_pageNumber&per_page=$_perPage';
+        final String reqLeaderboard =
+            'https://www.strava.com/api/v3/segments/$id/leaderboard?=gender$gender&age_group=$ageGroup&weight_class=$weightclass&following=$following&club_id=$clubIdStr&date_range=$dateRange&context_entries=${'&page=$_pageNumber&per_page=$_perPage'}';
 
         final rep = await http.get(Uri.parse(reqLeaderboard), headers: _header);
 
@@ -160,9 +136,9 @@ abstract class Segments {
           globals.displayInfo(rep.statusCode.toString());
           globals.displayInfo('Leaderboard info ${rep.body}');
 
-          final Map<String, dynamic>? jsonResponse = json.decode(rep.body);
+          final jsonResponse = json.decode(rep.body) as Map<String, dynamic>?;
           if (jsonResponse != null) {
-            returnLeaderboard = SegmentLeaderboard.fromJson(json.decode(rep.body));
+            returnLeaderboard = SegmentLeaderboard.fromJson(jsonResponse);
 
             // Add entries to the list
             returnLeaderboard.entries?.forEach((ent) {
@@ -175,7 +151,7 @@ abstract class Segments {
             globals.displayInfo('Entries ${_listEntries.length}');
 
             if ((_listEntries.length >= returnLeaderboard.entryCount!) ||
-                (_listEntries.length >= nbMaxEntries)) {
+                (_listEntries.length >= nbMaxEntries!)) {
               globals.displayInfo(
                   '----> End of leaderboard   ${returnLeaderboard.entryCount}');
               isRetrieveDone = true;
@@ -215,10 +191,7 @@ abstract class Segments {
     globals.displayInfo('Entering starSegment');
 
     if (_header.containsKey('88') == false) {
-      final reqStar = 'https://www.strava.com/api/v3/segments/' +
-          id.toString() +
-          '/starred?starred=' +
-          star.toString();
+      final reqStar = 'https://www.strava.com/api/v3/segments/$id/starred?starred=$star';
       final rep = await http.put(Uri.parse(reqStar), headers: _header);
 
       // final uri = Uri.https('www.strava.com', path);
@@ -227,7 +200,8 @@ abstract class Segments {
       if (rep.statusCode == 200) {
         globals.displayInfo(rep.statusCode.toString());
         globals.displayInfo('Star segment  info ${rep.body}');
-        returnSegment = DetailedSegment.fromJson(json.decode(rep.body));
+        returnSegment =
+            DetailedSegment.fromJson(json.decode(rep.body) as Map<String, dynamic>);
       } else {
         globals.displayInfo('Problem in starSegment request');
       }

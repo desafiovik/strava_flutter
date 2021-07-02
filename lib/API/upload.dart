@@ -1,16 +1,11 @@
-// Upload file
-
 import 'dart:async';
-
 import 'dart:convert';
 
 import 'package:http/http.dart' as http;
-
-import '../Models/fault.dart';
-import '../Models/upload_activity.dart';
-
-import '../globals.dart' as globals;
-import '../error_codes.dart' as error;
+import 'package:strava_flutter/error_codes.dart' as error;
+import 'package:strava_flutter/globals.dart' as globals;
+import 'package:strava_flutter/models/fault/fault.dart';
+import 'package:strava_flutter/models/response_upload_activity/response_upload_activity.dart';
 
 abstract class Upload {
   /// Tested with gpx and tcx
@@ -32,18 +27,18 @@ abstract class Upload {
 
     // To check if the activity has been uploaded successfully
     // No numeric error code for the moment given by Strava
-    final String ready = "Your activity is ready.";
-    final String deleted = "The created activity has been deleted.";
-    final String errorMsg = "There was an error processing your activity.";
-    final String processed = "Your activity is still being processed.";
-    final String notFound = 'Not Found';
+    const String ready = 'Your activity is ready.';
+    const String deleted = 'The created activity has been deleted.';
+    const String errorMsg = 'There was an error processing your activity.';
+    const String processed = 'Your activity is still being processed.';
+    const String notFound = 'Not Found';
 
     final postUri = Uri.parse('https://www.strava.com/api/v3/uploads');
-    StreamController<int?> onUploadPending = StreamController();
+    final StreamController<int?> onUploadPending = StreamController();
 
-    Fault fault = Fault(888, '');
+    final fault = Fault(888, '');
 
-    final request = http.MultipartRequest("POST", postUri);
+    final request = http.MultipartRequest('POST', postUri);
     if (fileType != null) request.fields['data_type'] = fileType; // tested with gpx
     request.fields['trainer'] = 'false';
     request.fields['commute'] = 'false';
@@ -55,16 +50,16 @@ abstract class Upload {
 
     if (_header.containsKey('88') == true) {
       globals.displayInfo('Token not yet known');
-      fault = Fault(error.statusTokenNotKnownYet, 'Token not yet known');
-      return fault;
+      return Fault(error.statusTokenNotKnownYet, 'Token not yet known');
     }
 
     request.headers.addAll(_header);
 
-    if (fileUrl != null)
+    if (fileUrl != null) {
       request.files.add(
         await http.MultipartFile.fromPath('file', fileUrl),
       );
+    }
     globals.displayInfo(request.toString());
 
     final response = await request.send();
@@ -88,8 +83,8 @@ abstract class Upload {
       globals.displayInfo('Activity successfully created');
       response.stream.transform(utf8.decoder).listen((value) {
         print(value);
-        final Map<String, dynamic> _body = json.decode(value);
-        ResponseUploadActivity _response = ResponseUploadActivity.fromJson(_body);
+        final _body = json.decode(value) as Map<String, dynamic>;
+        final ResponseUploadActivity _response = ResponseUploadActivity.fromJson(_body);
 
         print('id ${_response.id}');
         idUpload = _response.id;
@@ -132,7 +127,7 @@ abstract class Upload {
         if (resp.reasonPhrase?.compareTo(processed) == 0) {
           print('---> try another time');
           // wait 2 sec before checking again status
-          Timer(Duration(seconds: 2), () => onUploadPending.add(id));
+          Timer(const Duration(seconds: 2), () => onUploadPending.add(id));
         }
       });
     }
